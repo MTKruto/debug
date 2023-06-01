@@ -1,5 +1,4 @@
-import { generateColor, ColorFunction } from "./colors.ts";
-import { encode } from "./deps.ts";
+import { ColorFunction, generateColor } from "./colors.ts";
 import { format } from "./format.ts";
 
 export interface Debug {
@@ -26,8 +25,7 @@ export class Debugger {
     if (!this.enabled) return;
     const diff = Date.now() - (this.last || Date.now());
     fmt = format(fmt, ...args);
-    const msg = `${this.color(this.ns)} ${fmt} ${this.color(`+${diff}ms`)}\n`;
-    Deno.stderr.writeSync(encode(msg));
+    console.debug(...this.color(this.ns), fmt, ...this.color(`+${diff}ms`))
     this.last = Date.now();
   }
 }
@@ -56,8 +54,27 @@ export function withoutEnv(enabled?: RegExp[] | string) {
   manager = new DebugManager(enabled);
 }
 
+// @ts-ignore: lib
+const isDeno: boolean = typeof Deno !== "undefined" &&
+  typeof window !== "undefined";
+// @ts-ignore: lib
+const isNode: boolean = typeof process !== "undefined" &&
+  typeof window === "undefined";
+function getOpts() {
+  if (isDeno) {
+    // @ts-ignore: lib
+    return Deno.env.get("DEBUG");
+  } else if (isNode) {
+    // @ts-ignore: lib
+    return process.env.DEBUG;
+  } else {
+    // @ts-ignore: lib
+    return globalThis.DEBUG;
+  }
+}
+
 export function debug(namespace: string): Debug {
-  if (!manager) manager = new DebugManager(extract(Deno.env.get("DEBUG")));
+  if (!manager) manager = new DebugManager(extract(getOpts()));
 
   const dbg = new Debugger(manager, namespace);
   manager.debuggers.set(namespace, dbg);
