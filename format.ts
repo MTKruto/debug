@@ -1,6 +1,8 @@
+import { inspect } from "./deps.ts";
+
 export function format(f: string, ...args: unknown[]) {
   let i = 0;
-  let len = args.length;
+  const len = args.length;
   let str = String(f).replace(/%[sdjoO%]/g, (x: string): string => {
     if (x === "%%") return "%";
     if (i >= len) return x;
@@ -10,11 +12,11 @@ export function format(f: string, ...args: unknown[]) {
       case "%d":
         return Number(args[i++]).toString();
       case "%o":
-        return Deno.inspect(args[i++]).split("\n").map((_) => _.trim()).join(
+        return inspect(args[i++]).split("\n").map((_) => _.trim()).join(
           " ",
         );
       case "%O":
-        return Deno.inspect(args[i++]);
+        return inspect(args[i++]);
       case "%j":
         try {
           return JSON.stringify(args[i++]);
@@ -29,7 +31,7 @@ export function format(f: string, ...args: unknown[]) {
     if (x === null || !(typeof x === "object" && x !== null)) {
       str += " " + x;
     } else {
-      str += " " + Deno.inspect(x);
+      str += " " + inspect(x);
     }
   }
   return str;
