@@ -25,7 +25,7 @@ export class Debugger {
     if (!this.enabled) return;
     const diff = Date.now() - (this.last || Date.now());
     fmt = format(fmt, ...args);
-    console.debug(...this.color(this.ns), fmt, ...this.color(`+${diff}ms`))
+    console.debug(...this.color(this.ns), fmt, ...this.color(`+${diff}ms`));
     this.last = Date.now();
   }
 }

@@ -12,7 +12,7 @@ export function format(f: string, ...args: unknown[]) {
       case "%d":
         return Number(args[i++]).toString();
       case "%o":
-        return inspect(args[i++]).split("\n").map((_) => _.trim()).join(
+        return inspect(args[i++]).split("\n").map((_: string) => _.trim()).join(
           " ",
         );
       case "%O":
